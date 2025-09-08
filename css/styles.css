@@ -122,11 +122,9 @@ body {
   color: white;
 }
 
-/* Fixed Settings Button */
-.settings-btn-fixed {
+/* Fixed Buttons */
+.settings-btn-fixed, .github-btn-fixed {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
   background: none;
   border: 2px solid var(--border-color);
   border-radius: 50%;
@@ -143,7 +141,17 @@ body {
   z-index: 100;
 }
 
-.settings-btn-fixed:hover {
+.settings-btn-fixed {
+  bottom: 2rem;
+  right: 2rem;
+}
+
+.github-btn-fixed {
+  bottom: 2rem;
+  left: 2rem;
+}
+
+.settings-btn-fixed:hover, .github-btn-fixed:hover {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: white;
@@ -205,8 +213,8 @@ body {
   box-shadow: var(--shadow);
   border: 2px solid var(--border-color);
   min-width: 800px;
-  max-width: 800px;
-  width: 800px;
+  max-width: 1000px;
+  width: clamp(800px, 60vw, 1000px);
 }
 
 .timer {
@@ -497,7 +505,7 @@ body {
 /* Progress Indicator */
 .progress-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 100%;
   text-align: center;
 }
 
@@ -662,7 +670,9 @@ body {
   }
   
   .time-display {
-    width: 400px;
+    min-width: 350px;
+    width: clamp(350px, 90vw, 600px);
+    max-width: 600px;
     padding: 1rem;
   }
   
@@ -705,12 +715,19 @@ body {
     height: 40px;
   }
   
-  .settings-btn-fixed {
+  .settings-btn-fixed, .github-btn-fixed {
     width: 50px;
     height: 50px;
     font-size: 1.2rem;
     bottom: 1rem;
+  }
+  
+  .settings-btn-fixed {
     right: 1rem;
+  }
+  
+  .github-btn-fixed {
+    left: 1rem;
   }
   
   .icon-btn {

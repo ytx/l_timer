@@ -67,7 +67,7 @@
 
 ### File Structure
 ```
-/Users/yt/work/timer/
+l_timer/
 ├── index.html          # メイン HTML
 ├── css/styles.css      # CSS スタイル
 ├── js/app.js          # JavaScript アプリケーション
@@ -139,15 +139,6 @@
 - 設定は自動保存
 - 音声ファイルは事前ダウンロード推奨
 - フルスクリーンモードでプレゼンテーション使用可能
-
-## Development Commands
-```bash
-# 音声ファイル生成
-python3 audio/generate_more_sounds.py
-
-# ローカルサーバー起動（任意）
-python3 -m http.server 8000
-```
 
 ## Recent Updates
 - 終了時刻の手動調整機能

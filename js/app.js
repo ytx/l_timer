@@ -63,6 +63,7 @@ class TimerApp {
             muteToggle: document.getElementById('mute-toggle'),
             themeToggle: document.getElementById('theme-toggle'),
             fullscreenBtn: document.getElementById('fullscreen-btn'),
+            githubBtn: document.getElementById('github-btn'),
             settingsBtn: document.getElementById('settings-btn'),
             settingsModal: document.getElementById('settings-modal'),
             closeSettings: document.getElementById('close-settings'),
@@ -111,6 +112,9 @@ class TimerApp {
         
         // Fullscreen toggle
         this.elements.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+        
+        // GitHub link
+        this.elements.githubBtn.addEventListener('click', () => this.openGithub());
         
         // Settings modal
         this.elements.settingsBtn.addEventListener('click', () => this.openSettings());
@@ -652,6 +656,10 @@ class TimerApp {
                 document.exitFullscreen();
             }
         }
+    }
+    
+    openGithub() {
+        window.open('https://github.com/ytx/l_timer', '_blank');
     }
     
     openSettings() {
