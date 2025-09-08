@@ -595,10 +595,11 @@ class TimerApp {
     recalculateTimeRemaining() {
         if (this.customEndTime) {
             const now = new Date();
-            this.timeRemaining = Math.max(0, Math.floor((this.customEndTime - now) / 1000));
+            this.timeRemaining = Math.floor((this.customEndTime - now) / 1000);
             
-            // If time runs out, complete the timer
-            if (this.timeRemaining <= 0) {
+            // For lectures, allow overtime (negative values)
+            // For breaks, complete when time runs out
+            if (this.timeRemaining <= 0 && this.currentMode === 'break') {
                 this.timerComplete();
             }
         }
