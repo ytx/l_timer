@@ -13,6 +13,8 @@ class TimerApp {
         this.isOvertime = false;
         this.warningTime = 3; // minutes
         this.tickInterval = 60; // seconds
+        this.customEndTime = null; // Custom end time override
+        this.originalTimeRemaining = 0; // Store original time for reset
         
         this.sounds = {
             sound1: new Audio('audio/sound1-1.wav'), // 警告音
@@ -41,6 +43,12 @@ class TimerApp {
             timer: document.getElementById('timer'),
             currentTimeHeader: document.getElementById('current-time-header'),
             endTime: document.getElementById('end-time'),
+            endTimeContainer: document.getElementById('end-time-container'),
+            timeAdjustControls: document.getElementById('time-adjust-controls'),
+            endTimeMinus10: document.getElementById('end-time-minus-10'),
+            endTimeMinus1: document.getElementById('end-time-minus-1'),
+            endTimePlus1: document.getElementById('end-time-plus-1'),
+            endTimePlus10: document.getElementById('end-time-plus-10'),
             progressFill: document.getElementById('progress-fill'),
             progressText: document.getElementById('progress-text'),
             
@@ -92,6 +100,12 @@ class TimerApp {
         // Mute toggle
         this.elements.muteToggle.addEventListener('click', () => this.toggleMute());
         
+        // End time adjustment buttons
+        this.elements.endTimeMinus10.addEventListener('click', () => this.adjustEndTime(-10));
+        this.elements.endTimeMinus1.addEventListener('click', () => this.adjustEndTime(-1));
+        this.elements.endTimePlus1.addEventListener('click', () => this.adjustEndTime(1));
+        this.elements.endTimePlus10.addEventListener('click', () => this.adjustEndTime(10));
+        
         // Theme toggle
         this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
         
@@ -129,7 +143,7 @@ class TimerApp {
         // Settings time adjustment buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
             const action = btn.dataset.action;
-            if (action && action.includes('settings')) {
+            if (action && (action.includes('settings') || action.includes('warning-time') || action.includes('tick-interval'))) {
                 btn.addEventListener('click', (e) => this.handleSettingsTimeAdjustment(e));
             }
         });
@@ -225,6 +239,17 @@ class TimerApp {
         this.elements.muteToggle.textContent = this.isMuted ? '🔇' : '🔊';
         this.elements.muteToggle.classList.toggle('muted', this.isMuted);
         this.elements.muteToggle.title = this.isMuted ? 'Unmute' : 'Mute';
+        
+        // Set default sound selections if not already set
+        if (!this.elements.sound1Select.value) {
+            this.elements.sound1Select.value = 'audio/sound1-1.wav';
+        }
+        if (!this.elements.sound2Select.value) {
+            this.elements.sound2Select.value = 'audio/sound2-1.wav';
+        }
+        if (!this.elements.sound3Select.value) {
+            this.elements.sound3Select.value = 'audio/sound3-1.wav';
+        }
         
         // Load saved theme
         const savedTheme = localStorage.getItem('timerTheme') || 'light';
@@ -323,7 +348,11 @@ class TimerApp {
         
         // Remove overtime class and unmute
         this.elements.timer.classList.remove('overtime', 'break-mode');
+        this.elements.endTimeContainer.classList.remove('break-mode');
         this.unmuteSounds();
+        this.customEndTime = null;
+        this.originalTimeRemaining = this.timeRemaining;
+        this.showTimeAdjustControls();
         
         this.startTimer();
         this.updateButtonStates();
@@ -341,7 +370,11 @@ class TimerApp {
         // Remove overtime class and unmute
         this.elements.timer.classList.remove('overtime');
         this.elements.timer.classList.add('break-mode');
+        this.elements.endTimeContainer.classList.add('break-mode');
         this.unmuteSounds();
+        this.customEndTime = null;
+        this.originalTimeRemaining = this.timeRemaining;
+        this.showTimeAdjustControls();
         
         this.startTimer();
         this.updateButtonStates();
@@ -358,8 +391,14 @@ class TimerApp {
         const originalTime = this.timeRemaining;
         
         this.timerInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            this.timeRemaining = originalTime - elapsed;
+            if (this.customEndTime) {
+                // Use custom end time - recalculate remaining time
+                this.recalculateTimeRemaining();
+            } else {
+                // Use original countdown logic
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                this.timeRemaining = originalTime - elapsed;
+            }
             
             // Handle overtime for lectures
             if (this.timeRemaining < 0 && this.currentMode === 'lecture') {
@@ -396,6 +435,9 @@ class TimerApp {
         this.elements.headerTitle.textContent = 'Lecture Preparation';
         this.elements.headerTitle.className = '';
         this.elements.timer.classList.remove('overtime', 'break-mode');
+        this.elements.endTimeContainer.classList.remove('break-mode');
+        this.hideTimeAdjustControls();
+        this.customEndTime = null;
         this.updateDisplay();
     }
     
@@ -419,6 +461,8 @@ class TimerApp {
             this.elements.headerTitle.textContent = 'Lecture Complete - Break Recommended';
             this.elements.headerTitle.className = '';
             this.elements.timer.classList.remove('overtime', 'break-mode');
+            this.elements.endTimeContainer.classList.remove('break-mode');
+            this.hideTimeAdjustControls();
         }
     }
     
@@ -516,12 +560,56 @@ class TimerApp {
     }
     
     updateEndTime() {
-        if (this.currentMode !== 'idle' && this.timeRemaining > 0) {
-            const endTime = new Date(Date.now() + this.timeRemaining * 1000);
+        if (this.currentMode !== 'idle') {
+            let endTime;
+            if (this.customEndTime) {
+                endTime = this.customEndTime;
+            } else if (this.timeRemaining > 0) {
+                endTime = new Date(Date.now() + this.timeRemaining * 1000);
+            } else {
+                endTime = new Date();
+            }
             this.elements.endTime.textContent = endTime.toLocaleTimeString('ja-JP');
         } else {
             this.elements.endTime.textContent = '--:--:--';
         }
+    }
+    
+    adjustEndTime(minutes) {
+        if (this.currentMode === 'idle') return;
+        
+        const currentEndTime = this.customEndTime || new Date(Date.now() + this.timeRemaining * 1000);
+        const newEndTime = new Date(currentEndTime.getTime() + minutes * 60 * 1000);
+        
+        // Set seconds to 0
+        newEndTime.setSeconds(0, 0);
+        
+        // Don't allow setting end time in the past
+        if (newEndTime <= new Date()) return;
+        
+        this.customEndTime = newEndTime;
+        this.recalculateTimeRemaining();
+        this.updateEndTime();
+    }
+    
+    recalculateTimeRemaining() {
+        if (this.customEndTime) {
+            const now = new Date();
+            this.timeRemaining = Math.max(0, Math.floor((this.customEndTime - now) / 1000));
+            
+            // If time runs out, complete the timer
+            if (this.timeRemaining <= 0) {
+                this.timerComplete();
+            }
+        }
+    }
+    
+    showTimeAdjustControls() {
+        this.elements.timeAdjustControls.style.display = 'inline-flex';
+    }
+    
+    hideTimeAdjustControls() {
+        this.elements.timeAdjustControls.style.display = 'none';
     }
     
     updateButtonStates() {

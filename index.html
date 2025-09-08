@@ -31,7 +31,15 @@
                     </div>
                 </div>
                 
-                <div class="end-time">End Time: <span id="end-time">--:--:--</span></div>
+                <div id="end-time-container">
+                    <div class="end-time">End Time: <span id="end-time">--:--:--</span></div>
+                    <div class="time-adjust-controls" id="time-adjust-controls" style="display: none;">
+                        <button class="time-adjust-btn" id="end-time-minus-10" title="Earlier (-10min)">-10</button>
+                        <button class="time-adjust-btn" id="end-time-minus-1" title="Earlier (-1min)">-1</button>
+                        <button class="time-adjust-btn" id="end-time-plus-1" title="Later (+1min)">+1</button>
+                        <button class="time-adjust-btn" id="end-time-plus-10" title="Later (+10min)">+10</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Action Buttons -->

@@ -234,6 +234,60 @@ body {
   color: var(--primary-color);
 }
 
+#end-time-container.break-mode .end-time {
+  color: var(--success-color);
+}
+
+.time-adjust-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-adjust-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-adjust-btn:hover {
+  background-color: var(--primary-hover);
+  transform: scale(1.1);
+}
+
+.break-mode .time-adjust-btn {
+  background-color: var(--success-color);
+}
+
+.break-mode .time-adjust-btn:hover {
+  background-color: var(--success-hover);
+}
+
+@media (max-width: 768px) {
+  .time-adjust-controls {
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+  }
+  
+  .time-adjust-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.7rem;
+  }
+}
+
 /* Time Controls */
 .time-controls {
   display: flex;
