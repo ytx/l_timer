@@ -28,12 +28,35 @@ class TimerApp {
         this.updateDisplay();
         this.updateCurrentTime();
         this.updateHeaderTime();
-        
+        this.initializeResponsiveLayout();
+
         // Update current time every second
         setInterval(() => {
             this.updateCurrentTime();
             this.updateHeaderTime();
         }, 1000);
+    }
+
+    initializeResponsiveLayout() {
+        // Use ResizeObserver to monitor main-content width
+        const mainContent = document.querySelector('.main-content');
+        const compactThreshold = 600; // px
+
+        if (mainContent && window.ResizeObserver) {
+            const resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    const width = entry.contentRect.width;
+
+                    if (width < compactThreshold) {
+                        mainContent.classList.add('compact-layout');
+                    } else {
+                        mainContent.classList.remove('compact-layout');
+                    }
+                }
+            });
+
+            resizeObserver.observe(mainContent);
+        }
     }
     
     initializeElements() {

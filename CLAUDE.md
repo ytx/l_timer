@@ -58,50 +58,100 @@
   - 経過音間隔 (10-300秒)
   - 音量 (0-100%)
 
-### 7. Multi-language Support
-- **メイン画面**: 英語表示
-- **設定画面**: 日本語表示
-- **ページタイトル**: "Timer for Lecture"
+### 7. Editor Integration
+- **WYSIWYG エディタ**: Quill.js ベースのリッチテキストエディタ
+- **分割画面レイアウト**: タイマーとエディタを左右に配置
+- **リサイズ可能**: マウスドラッグで左右の幅を調整（30%-70%制約）
+- **ズーム機能**: 50%-200%の範囲でエディタ表示を拡大/縮小
+- **ドキュメント管理**:
+  - 複数ドキュメントの保存・読込・削除
+  - タイトル自動生成（本文の最初の行から抽出）
+  - ドロップダウンで切り替え
+  - LocalStorage による永続化
+- **レスポンシブ**: 狭い画面でコンパクトレイアウトに自動切り替え
+
+### 8. Data Management
+- **エクスポート/インポート**: JSON形式で全設定とドキュメントを一括管理
+- **タブ型設定画面**:
+  - 時間設定タブ
+  - 言語・サウンド設定タブ
+  - データ管理タブ
+  - ライセンス表示タブ
+  - サポート（Buy Me a Coffee）タブ
+- **データバリデーション**: インポート時の検証機能
+- **選択コピー**: テキストエリアの一括選択機能
+
+### 9. Multi-language Support (i18n)
+- **日本語/英語切り替え**: 設定画面で言語選択
+- **動的UI更新**: 言語変更時に即座にUIを更新
+- **対応範囲**:
+  - 設定画面の全ラベル
+  - タブ名
+  - ボタンテキスト
+  - 音声選択ドロップダウン
+  - ツールチップ（全ボタン）
+- **永続化**: 言語設定をLocalStorageに保存
 
 ## Technical Implementation
 
 ### File Structure
 ```
 l_timer/
-├── index.html          # メイン HTML
-├── css/styles.css      # CSS スタイル
-├── js/app.js          # JavaScript アプリケーション
-├── audio/             # 音声ファイル
-│   ├── sound1-1.wav   # 警告音1
-│   ├── sound1-2.wav   # 警告音2
-│   ├── sound1-3.wav   # 警告音3
-│   ├── sound2-1.wav   # 終了音1
-│   ├── sound2-2.wav   # 終了音2
-│   ├── sound2-3.wav   # 終了音3
-│   ├── sound3-1.wav   # 経過音1
-│   ├── sound3-2.wav   # 経過音2
-│   ├── sound3-3.wav   # 経過音3
-│   └── README.md      # 音声ファイル説明
-├── README.md          # プロジェクト説明
-└── CLAUDE.md          # 実装サマリー
+├── index.html              # メイン HTML
+├── css/
+│   ├── styles.css          # メインスタイルシート
+│   └── quill.snow.css      # Quill.js テーマ
+├── js/
+│   ├── app.js              # タイマーアプリケーション
+│   ├── editor.js           # エディタマネージャー
+│   ├── document.js         # ドキュメント管理
+│   ├── resizer.js          # リサイズマネージャー
+│   ├── data-manager.js     # データエクスポート/インポート
+│   └── i18n.js             # 多言語対応
+├── lib/
+│   └── quill.min.js        # Quill.js ライブラリ
+├── audio/
+│   ├── sound1-1.wav        # 警告音1
+│   ├── sound1-2.wav        # 警告音2
+│   ├── sound1-3.wav        # 警告音3
+│   ├── sound2-1.wav        # 終了音1
+│   ├── sound2-2.wav        # 終了音2
+│   ├── sound2-3.wav        # 終了音3
+│   ├── sound3-1.wav        # 経過音1
+│   ├── sound3-2.wav        # 経過音2
+│   ├── sound3-3.wav        # 経過音3
+│   └── README.md           # 音声ファイル説明
+├── images/
+│   └── bmc_qr.png          # Buy Me a Coffee QRコード
+├── README.md               # プロジェクト説明（日本語）
+├── README-en.md            # プロジェクト説明（英語）
+└── CLAUDE.md               # 実装サマリー
 ```
 
 ### Key Technologies
 - **HTML5 Audio API**: 音声再生
+- **Quill.js**: WYSIWYGエディタライブラリ
 - **CSS Custom Properties**: テーマシステム
 - **CSS Grid/Flexbox**: レスポンシブレイアウト
 - **JavaScript Classes**: オブジェクト指向設計
 - **LocalStorage API**: 設定永続化
 - **Fullscreen API**: 全画面表示
+- **ResizeObserver API**: レスポンシブレイアウト監視
 
 ### CSS Architecture
 - **CSS Variables**: ライト/ダークテーマ対応
 - **Component-based**: 再利用可能なコンポーネント
 - **Mobile-first**: レスポンシブデザイン
 - **Animations**: ホバー効果とトランジション
+- **Flexbox Modal**: 固定高さでスクロール可能な設定画面
 
 ### JavaScript Architecture
 - **TimerApp Class**: メインアプリケーションクラス
+- **EditorManager Class**: Quill.jsエディタ管理
+- **DocumentManager Class**: ドキュメント保存・読込・削除
+- **ResizerManager Class**: 分割パネルのリサイズ管理
+- **DataManager Class**: 設定のエクスポート/インポート
+- **I18nManager Class**: 多言語対応の翻訳管理
 - **Event-driven**: DOM イベントハンドリング
 - **State Management**: アプリケーション状態管理
 - **Settings Persistence**: LocalStorage による設定保存
@@ -117,17 +167,33 @@ l_timer/
 - アイコンボタン化
 - テーマシステム
 - レスポンシブデザイン
+- SVGアイコン実装
 
 ### Phase 3: Advanced Features
 - 消音ボタン
 - 休憩中講義開始ボタン
-- 英語化
-- 終了時刻カスタマイズ
+- 終了時刻カスタマイズ機能
 
-### Phase 4: Bug Fixes & Polish
-- 設定画面のボタン修正
-- 音声選択のデフォルト値
+### Phase 4: Editor Integration
+- Quill.js WYSIWYGエディタ追加
+- 分割画面レイアウト
+- ドラッグ可能なリサイザー
+- ドキュメント管理システム
+- ズーム機能
+
+### Phase 5: Data Management & i18n
+- エクスポート/インポート機能
+- タブ型設定画面
+- 日本語/英語切り替え
+- Buy Me a Coffee サポートページ
+- ライセンス表示
+
+### Phase 6: Bug Fixes & Polish
+- 音声選択のデフォルト値修正
 - 色の統一性改善
+- ダークモードアイコン可視性改善
+- 設定画面の高さ固定
+- ツールチップの多言語対応
 
 ## Browser Compatibility
 - **Chrome/Edge**: フル機能対応
@@ -141,8 +207,12 @@ l_timer/
 - フルスクリーンモードでプレゼンテーション使用可能
 
 ## Recent Updates
-- 終了時刻の手動調整機能
-- 休憩時の色分け統一
-- 設定画面のバグ修正
-- 消音機能の自動解除
-- モバイル対応の改善
+- 多言語対応（日本語/英語）の実装
+- WYSIWYGエディタの統合
+- データエクスポート/インポート機能
+- ドキュメント管理システム
+- 分割画面とリサイズ機能
+- タブ型設定画面
+- 設定画面の高さ固定
+- SVGアイコンのダークモード対応
+- ツールチップの完全多言語化
