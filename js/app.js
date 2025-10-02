@@ -240,8 +240,7 @@ class TimerApp {
         }
         
         // Update mute button
-        this.elements.muteToggle.textContent = this.isMuted ? '🔇' : '🔊';
-        this.elements.muteToggle.classList.toggle('muted', this.isMuted);
+        this.updateMuteIcon();
         this.elements.muteToggle.title = this.isMuted ? 'Unmute' : 'Mute';
         
         // Set default sound selections if not already set
@@ -259,9 +258,11 @@ class TimerApp {
         const savedTheme = localStorage.getItem('timerTheme') || 'light';
         if (savedTheme === 'dark') {
             document.body.dataset.theme = 'dark';
-            this.elements.themeToggle.textContent = '☀️';
+            this.updateThemeIcon('dark');
+        } else {
+            this.updateThemeIcon('light');
         }
-        
+
         this.updateSoundVolumes();
     }
     
@@ -503,17 +504,29 @@ class TimerApp {
     
     toggleMute() {
         this.isMuted = !this.isMuted;
-        this.elements.muteToggle.textContent = this.isMuted ? '🔇' : '🔊';
-        this.elements.muteToggle.classList.toggle('muted', this.isMuted);
+        this.updateMuteIcon();
         this.elements.muteToggle.title = this.isMuted ? 'Unmute' : 'Mute';
         this.saveSettings();
     }
-    
+
+    updateMuteIcon() {
+        const unmutedIcon = document.getElementById('unmuted-icon');
+        const mutedIcon = document.getElementById('muted-icon');
+        if (this.isMuted) {
+            unmutedIcon.style.display = 'none';
+            mutedIcon.style.display = 'block';
+            this.elements.muteToggle.classList.add('muted');
+        } else {
+            unmutedIcon.style.display = 'block';
+            mutedIcon.style.display = 'none';
+            this.elements.muteToggle.classList.remove('muted');
+        }
+    }
+
     unmuteSounds() {
         if (this.isMuted) {
             this.isMuted = false;
-            this.elements.muteToggle.textContent = '🔊';
-            this.elements.muteToggle.classList.remove('muted');
+            this.updateMuteIcon();
             this.elements.muteToggle.title = 'Mute';
             this.saveSettings();
         }
@@ -639,11 +652,23 @@ class TimerApp {
     toggleTheme() {
         const currentTheme = document.body.dataset.theme || 'light';
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
+
         document.body.dataset.theme = newTheme === 'dark' ? 'dark' : '';
-        this.elements.themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-        
+        this.updateThemeIcon(newTheme);
+
         localStorage.setItem('timerTheme', newTheme);
+    }
+
+    updateThemeIcon(theme) {
+        const lightIcon = document.getElementById('light-icon');
+        const darkIcon = document.getElementById('dark-icon');
+        if (theme === 'dark') {
+            lightIcon.style.display = 'none';
+            darkIcon.style.display = 'block';
+        } else {
+            lightIcon.style.display = 'block';
+            darkIcon.style.display = 'none';
+        }
     }
     
     toggleFullscreen() {
@@ -663,7 +688,23 @@ class TimerApp {
     }
     
     openSettings() {
+        // Update sound select dropdowns to reflect current settings
+        // Extract relative path from absolute URL
+        this.elements.sound1Select.value = this.getRelativePath(this.sounds.sound1.src);
+        this.elements.sound2Select.value = this.getRelativePath(this.sounds.sound2.src);
+        this.elements.sound3Select.value = this.getRelativePath(this.sounds.sound3.src);
+
         this.elements.settingsModal.classList.add('show');
+    }
+
+    getRelativePath(absoluteUrl) {
+        // Extract the relative path from an absolute URL
+        // e.g., "http://localhost/audio/sound1-2.wav" -> "audio/sound1-2.wav"
+        const url = new URL(absoluteUrl, window.location.href);
+        const pathname = url.pathname;
+        // Remove leading slash if present and extract the audio path
+        const match = pathname.match(/audio\/sound\d-\d\.wav$/);
+        return match ? match[0] : absoluteUrl;
     }
     
     closeSettings() {
@@ -685,9 +726,9 @@ class TimerApp {
             selectedBreakType: this.selectedBreakType,
             warningTime: this.warningTime,
             tickInterval: this.tickInterval,
-            sound1Src: this.sounds.sound1.src,
-            sound2Src: this.sounds.sound2.src,
-            sound3Src: this.sounds.sound3.src,
+            sound1Src: this.getRelativePath(this.sounds.sound1.src),
+            sound2Src: this.getRelativePath(this.sounds.sound2.src),
+            sound3Src: this.getRelativePath(this.sounds.sound3.src),
             isMuted: this.isMuted
         };
         localStorage.setItem('timerSettings', JSON.stringify(settings));
