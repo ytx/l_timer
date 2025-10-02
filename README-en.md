@@ -1,13 +1,16 @@
 # Timer for Lecture
 
 A timer application designed to manage lecture sessions and breaks during training programs.
-All code is written by Claude Code. I barely reviewed the implementation.
+When you're focused on lecturing, it's easy to forget about breaks, so this app notifies you with sound to encourage appropriate rest periods.
+I created this after receiving feedback in post-lecture surveys about insufficient breaks.
+After implementation, survey results improved for both in-person and online training sessions.
 
 You can launch it directly from https://xpenguin.biz/l_timer/
+All data is stored in the browser's LocalStorage and never sent to a server, so you can use it with confidence.
 
-I'm building what I need. Only tested on Chrome for macOS.
+All code is written by Claude Code. I barely reviewed the implementation.
+I'm building what I need, and have tested it on Chrome for Windows/macOS only.
 While I'm not planning to make it overly feature-rich, I'm open to considering feature requests.
-
 The content below was automatically written by Claude Code and might sound a bit exaggerated, but it's mostly accurate.
 
 ## Main Features
@@ -34,10 +37,16 @@ The content below was automatically written by Claude Code and might sound a bit
 - **Responsive design**: Mobile and desktop support
 - **Dark mode/Light mode**: Toggle with 🌙/☀️ button
 - **Fullscreen support**: Presentation mode with ⛶ button
+- **Flat design**: Clean UI with removed timer borders and shadows
+- **SVG icons**: Wrench (settings), pen (editor), speaker (mute), etc.
 - **Color themes**:
   - During lecture: Blue tones
   - During break: Green tones
   - Overtime: Red tones
+- **Dynamic layout**:
+  - Timer font size smoothly adjusts to screen width
+  - Progress bar automatically sized to match 7-digit monospace font width
+  - Timer size responds to editor/timer ratio changes
 - **Icon buttons**: Unified design
   - ☕ Start break (10 min)
   - 🍽️ Start lunch break (60 min)
@@ -58,6 +67,7 @@ The content below was automatically written by Claude Code and might sound a bit
 ### 📝 Editor Features
 - **WYSIWYG Editor**: Rich text editor based on Quill.js
 - **Split screen**: Timer and editor side-by-side, drag to resize
+- **Dynamic resize**: Timer font size automatically adjusts when changing editor/timer ratio
 - **Document management**: Save, load, and delete multiple notes
 - **Zoom functionality**: Scale editor display from 50%-200%
 - **Auto-save**: Documents saved to LocalStorage
@@ -135,6 +145,8 @@ l_timer/
 - **HTML5 Audio API**: Audio playback
 - **Quill.js**: WYSIWYG editor
 - **CSS Custom Properties**: Theme system
+- **CSS Container Queries**: Dynamic layout adjustment when editor is visible
+- **CSS clamp()**: Fluid font sizes and layouts
 - **LocalStorage**: Settings and document persistence
 - **ResizeObserver API**: Responsive layout
 - **Responsive Design**: Mobile support
