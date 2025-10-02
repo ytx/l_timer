@@ -60,7 +60,7 @@ class I18nManager {
                 'tooltip-start-lecture-break': '講義開始',
                 'tooltip-start-break1': '休憩開始（10分）',
                 'tooltip-start-break2': '休憩開始（60分）',
-                'tooltip-stop': '停止'
+                'tooltip-stop': '終了'
             },
             en: {
                 // Modal header
@@ -181,7 +181,7 @@ class I18nManager {
             background-color: white;
             border-radius: 10px;
             padding: 2rem;
-            max-width: 400px;
+            max-width: 480px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         `;
 
