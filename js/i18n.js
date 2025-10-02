@@ -43,6 +43,10 @@ class I18nManager {
                 'button-export': 'エクスポート',
                 'button-import': 'インポート',
                 'button-select-all': 'すべて選択',
+                'label-clear-storage': 'ローカルストレージの消去:',
+                'button-clear-storage': 'すべてのデータを消去',
+                'confirm-clear-storage': 'すべての設定とドキュメントが削除されます。本当に実行しますか？',
+                'clear-storage-success': 'すべてのデータを消去しました。ページをリロードします。',
 
                 // License
                 'heading-license': '使用しているライブラリ等のライセンス表示',
@@ -99,6 +103,10 @@ class I18nManager {
                 'button-export': 'Export',
                 'button-import': 'Import',
                 'button-select-all': 'Select All',
+                'label-clear-storage': 'Clear Storage:',
+                'button-clear-storage': 'Clear All Data',
+                'confirm-clear-storage': 'All settings and documents will be deleted. Are you sure?',
+                'clear-storage-success': 'All data has been cleared. Reloading page...',
 
                 // License
                 'heading-license': 'Library Licenses',
@@ -120,7 +128,10 @@ class I18nManager {
     }
 
     initialize() {
-        this.loadLanguage();
+        const hasLanguage = this.loadLanguage();
+        if (!hasLanguage) {
+            this.showLanguageSelectionDialog();
+        }
         this.setupEventListeners();
         this.updateUI();
     }
@@ -139,10 +150,95 @@ class I18nManager {
             const saved = localStorage.getItem('appLanguage');
             if (saved && (saved === 'ja' || saved === 'en')) {
                 this.currentLanguage = saved;
+                return true;
             }
+            return false;
         } catch (error) {
             console.error('Failed to load language preference:', error);
+            return false;
         }
+    }
+
+    showLanguageSelectionDialog() {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        `;
+
+        // Create dialog
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        `;
+
+        dialog.innerHTML = `
+            <h2 style="margin-top: 0; text-align: center;">Select Language / 言語を選択</h2>
+            <p style="text-align: center; margin-bottom: 2rem;">
+                Please select your preferred language.<br>
+                使用する言語を選択してください。
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="select-ja" style="
+                    padding: 1rem 2rem;
+                    font-size: 1.2rem;
+                    border: 2px solid #3498db;
+                    border-radius: 5px;
+                    background-color: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">日本語</button>
+                <button id="select-en" style="
+                    padding: 1rem 2rem;
+                    font-size: 1.2rem;
+                    border: 2px solid #3498db;
+                    border-radius: 5px;
+                    background-color: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">English</button>
+            </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        // Add hover effects
+        const buttons = dialog.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.backgroundColor = '#3498db';
+                btn.style.color = 'white';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.backgroundColor = 'white';
+                btn.style.color = 'black';
+            });
+        });
+
+        // Handle selection
+        document.getElementById('select-ja').addEventListener('click', () => {
+            this.setLanguage('ja');
+            document.body.removeChild(overlay);
+        });
+
+        document.getElementById('select-en').addEventListener('click', () => {
+            this.setLanguage('en');
+            document.body.removeChild(overlay);
+        });
     }
 
     saveLanguage() {

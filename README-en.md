@@ -77,10 +77,12 @@ The content below was automatically written by Claude Code and might sound a bit
 - **Export**: Export all settings and documents in JSON format
 - **Import**: Restore from backup
 - **Select all**: Easily copy export data
+- **Clear storage**: Delete all data and reset to initial state
 
 ### 🌐 Multi-language Support
-- **Japanese/English switching**: Select language in settings
-- **Full UI coverage**: Labels, buttons, tooltips all supported
+- **Initial language selection**: Choose Japanese/English on first use
+- **Language switching**: Change anytime in settings
+- **Full UI coverage**: Labels, buttons, tooltips, dialogs all supported
 - **Auto-save**: Language preference is remembered
 
 ## Usage

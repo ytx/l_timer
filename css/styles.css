@@ -1165,6 +1165,18 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.data-btn.danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  margin-top: 0.5rem;
+}
+
+.data-btn.danger:hover {
+  background-color: #c0392b;
+  border-color: #c0392b;
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
 .data-btn.secondary {
   background-color: var(--bg-color);
   border-color: var(--border-color);

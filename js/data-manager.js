@@ -5,6 +5,7 @@ class DataManager {
             exportBtn: document.getElementById('export-data-btn'),
             importBtn: document.getElementById('import-data-btn'),
             selectAllBtn: document.getElementById('select-all-btn'),
+            clearStorageBtn: document.getElementById('clear-storage-btn'),
             tabBtns: document.querySelectorAll('.tab-btn')
         };
 
@@ -30,6 +31,11 @@ class DataManager {
         // Import button
         this.elements.importBtn.addEventListener('click', () => {
             this.importData();
+        });
+
+        // Clear Storage button
+        this.elements.clearStorageBtn.addEventListener('click', () => {
+            this.clearStorage();
         });
     }
 
@@ -180,6 +186,31 @@ class DataManager {
         } catch (error) {
             console.error(`Failed to get ${key}:`, error);
             return null;
+        }
+    }
+
+    clearStorage() {
+        const i18n = window.i18n;
+        const confirmMessage = i18n ? i18n.t('confirm-clear-storage') : 'すべての設定とドキュメントが削除されます。本当に実行しますか？';
+        const successMessage = i18n ? i18n.t('clear-storage-success') : 'すべてのデータを消去しました。ページをリロードします。';
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        try {
+            // Clear all localStorage
+            localStorage.clear();
+
+            alert(successMessage);
+
+            // Reload page after 1 second
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } catch (error) {
+            console.error('Failed to clear storage:', error);
+            this.showMessage('Failed to clear storage: ' + error.message, 'error');
         }
     }
 
