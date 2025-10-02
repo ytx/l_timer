@@ -274,10 +274,7 @@ body {
   text-align: center;
   margin-bottom: 2rem;
   padding: 2rem;
-  background-color: var(--card-bg);
   border-radius: 20px;
-  box-shadow: var(--shadow);
-  border: 2px solid var(--border-color);
   min-width: 800px;
   max-width: 1000px;
   width: clamp(800px, 60vw, 1000px);
