@@ -75,11 +75,44 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button id="start-lecture" class="action-btn lecture-btn">Start</button>
-                <button id="start-lecture-break" class="icon-btn lecture-icon-btn" style="display: none;" title="Start Lecture">📚</button>
-                <button id="start-break1" class="icon-btn break-icon-btn" data-break-type="1" title="休憩開始（10分）">☕</button>
-                <button id="start-break2" class="icon-btn break-icon-btn" data-break-type="2" title="休憩開始（60分）">🍽️</button>
-                <button id="stop-timer" class="icon-btn stop-icon-btn" style="display: none;" title="停止">💤</button>
+                <button id="start-lecture" class="icon-btn lecture-icon-btn" title="Start Lecture">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <polygon points="6,3 20,12 6,21"/>
+                    </svg>
+                </button>
+                <button id="start-lecture-break" class="icon-btn lecture-icon-btn" style="display: none;" title="Start Lecture">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        <line x1="8" y1="7" x2="16" y2="7"/>
+                        <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                </button>
+                <button id="start-break1" class="icon-btn break-icon-btn" data-break-type="1" title="休憩開始（10分）">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                        <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/>
+                        <line x1="6" y1="2" x2="6" y2="4"/>
+                        <line x1="10" y1="2" x2="10" y2="4"/>
+                        <line x1="14" y1="2" x2="14" y2="4"/>
+                    </svg>
+                </button>
+                <button id="start-break2" class="icon-btn break-icon-btn" data-break-type="2" title="休憩開始（60分）">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="1" x2="8" y2="4"/>
+                        <line x1="12" y1="1" x2="12" y2="4"/>
+                        <line x1="16" y1="1" x2="16" y2="4"/>
+                        <path d="M3 7h18v3a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8V7z"/>
+                        <path d="M5 21h14"/>
+                        <path d="M9 18l-1 3"/>
+                        <path d="M15 18l1 3"/>
+                    </svg>
+                </button>
+                <button id="stop-timer" class="icon-btn stop-icon-btn" style="display: none;" title="停止">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    </svg>
+                </button>
             </div>
         </main>
 

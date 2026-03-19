@@ -552,6 +552,10 @@ body {
   transform: scale(1.1);
 }
 
+.break-icon-btn:hover svg {
+  stroke: white;
+}
+
 .lecture-icon-btn {
   color: var(--primary-color);
   border-color: var(--primary-color);
@@ -563,6 +567,11 @@ body {
   transform: scale(1.1);
 }
 
+.lecture-icon-btn:hover svg {
+  stroke: white;
+  fill: white;
+}
+
 .stop-icon-btn {
   color: var(--danger-color);
   border-color: var(--danger-color);
@@ -572,6 +581,10 @@ body {
   background-color: var(--danger-color);
   color: white;
   transform: scale(1.1);
+}
+
+.stop-icon-btn:hover svg {
+  stroke: white;
 }
 
 /* Progress Indicator */
