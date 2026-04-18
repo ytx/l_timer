@@ -18,28 +18,31 @@
   - 経過音（オーバータイム中、デフォルト60秒間隔）
 - **音声バリエーション**: 各音声タイプに3つのオプション
 - **音量調整**: スライダーで0-100%調整
-- **一時消音機能**: 🔊/🔇 ボタンで即座にミュート切り替え
+- **一時消音機能**: ミュートボタンで即座に切り替え
 - **自動ミュート解除**: 講義・休憩開始時に自動的にミュート解除
 
 ### 3. User Interface
 - **レスポンシブデザイン**: モバイル・デスクトップ対応
-- **ダークモード**: 🌙/☀️ ボタンで切り替え
+- **ダークモード**: ボタンで切り替え
 - **フルスクリーン対応**: プレゼンテーション用
-- **SVGアイコン**: スパナ（設定）、ペン（エディタ）、スピーカー（ミュート）など
+- **SVGアイコン**: 全ボタンをSVGアイコンで統一
 - **テーマ別色分け**:
   - 講義中: 青色系
   - 休憩中: 緑色系
   - オーバータイム: 赤色系
+  - 演習タイマー: オレンジ色系
 - **フレキシブルレイアウト**:
   - タイマーフォントサイズが画面幅に応じて滑らかに変化
   - プログレスバーの幅が7桁の等幅フォント幅に自動調整
   - エディタ表示時はCSSコンテナクエリで左パネル幅に連動
 
-### 4. Control Buttons
-- **講義開始**: メインの開始ボタン
-- **休憩開始**: ☕(10分) と 🍽️(60分) のアイコンボタン
-- **休憩中の講義開始**: 📚 アイコンボタン（休憩中のみ表示）
-- **停止**: ⏹️ ボタン
+### 4. Control Buttons (全SVGアイコン)
+- **▶ 講義開始**: play triangle SVG
+- **📖 講義開始（休憩中）**: book SVG
+- **☕ 休憩開始（10分）**: Material Icons `local_cafe`
+- **🍽 昼休憩開始（60分）**: Material Icons `dining`
+- **⏹ 停止**: stop square SVG
+- **⏱ 演習タイマー**: stopwatch SVG（停止ボタンの右側、講義中・オーバータイム中に表示）
 - **円形アイコンデザイン**: 統一されたUI
 
 ### 5. Time Management
@@ -63,7 +66,28 @@
   - 経過音間隔 (10-300秒)
   - 音量 (0-100%)
 
-### 7. Editor Integration
+### 7. Exercise Timer
+- **独立したタイマー**: 講義タイマーと並行して動作するサブタイマー
+- **表示位置**: 講義タイマーの上にオレンジ色で表示
+- **起動条件**: 講義中・オーバータイム中のみ表示（停止中・休憩中は非表示）
+- **タイトル管理**:
+  - 自由入力（datalistで過去の入力を候補表示、最大20件）
+  - LocalStorageに履歴保存
+- **時間調整**: -10/-1/+1/+10ボタン（オレンジ色）、デフォルト15分
+- **終了時の動作**:
+  - 次の演習が設定されていれば自動スタート
+  - 未設定の場合はカウントアップ（オーバータイム、赤色）
+- **次の演習パネル**:
+  - 演習タイマーの右側に縦3行配置（ラベル / タイトル入力 / 時間＋調整ボタン）
+  - 「×」ボタンで折りたたみ、「Next」ボタンで再表示
+  - 演習開始時は折りたたんだ状態で起動
+- **講義タイマー連動**:
+  - 演習中は講義タイマーのフォントサイズを縮小（`exercise-active`クラス付与）
+  - opacity 0.45 で薄表示
+- **サウンド**: 講義タイマーと同一の sound1/sound2/sound3 を使用
+- **停止**: 赤い⏹ボタンまたは講義タイマー停止時に連動停止
+
+### 8. Editor Integration
 - **WYSIWYG エディタ**: Quill.js ベースのリッチテキストエディタ
 - **分割画面レイアウト**: タイマーとエディタを左右に配置
 - **リサイズ可能**: マウスドラッグで左右の幅を調整（30%-70%制約）
@@ -78,7 +102,7 @@
   - LocalStorage による永続化
 - **レスポンシブ**: 狭い画面でコンパクトレイアウトに自動切り替え
 
-### 8. Data Management
+### 9. Data Management
 - **エクスポート/インポート**: JSON形式で全設定とドキュメントを一括管理
 - **タブ型設定画面**:
   - 時間設定タブ
@@ -90,17 +114,17 @@
 - **選択コピー**: テキストエリアの一括選択機能
 - **ローカルストレージ消去**: すべてのデータを削除して初期状態に戻す機能
 
-### 9. Multi-language Support (i18n)
+### 10. Multi-language Support (i18n)
 - **初回起動時の言語選択**: LocalStorageにデータがない場合、言語選択ダイアログを表示
 - **日本語/英語切り替え**: 設定画面で言語選択
 - **動的UI更新**: 言語変更時に即座にUIを更新
 - **対応範囲**:
   - 設定画面の全ラベル
-  - タブ名
-  - ボタンテキスト
+  - タブ名・ボタンテキスト
   - 音声選択ドロップダウン
   - ツールチップ（全ボタン）
   - 確認ダイアログメッセージ
+  - 演習タイマー関連ラベル・プレースホルダー（`data-i18n-placeholder` / `data-i18n-title` 属性）
 - **永続化**: 言語設定をLocalStorageに保存
 
 ## Technical Implementation
@@ -145,12 +169,12 @@ l_timer/
 - **CSS Custom Properties**: テーマシステム
 - **CSS Grid/Flexbox**: レスポンシブレイアウト
 - **JavaScript Classes**: オブジェクト指向設計
-- **LocalStorage API**: 設定永続化
+- **LocalStorage API**: 設定・ドキュメント・演習タイトル履歴の永続化
 - **Fullscreen API**: 全画面表示
 - **ResizeObserver API**: レスポンシブレイアウト監視
 
 ### CSS Architecture
-- **CSS Variables**: ライト/ダークテーマ対応
+- **CSS Variables**: ライト/ダークテーマ対応（`--exercise-color` など演習用変数を含む）
 - **Component-based**: 再利用可能なコンポーネント
 - **Mobile-first**: レスポンシブデザイン
 - **Animations**: ホバー効果とトランジション
@@ -158,17 +182,34 @@ l_timer/
 - **CSS Container Queries**: エディタ表示時にタイマー部分の幅に応じた動的調整
 - **clamp()関数**: 最小・最大値を持つ流動的なフォントサイズとレイアウト
 - **等幅フォント計算**: プログレスバーの幅を7桁の等幅フォント（Courier New）幅に自動調整
+- **exercise-active クラス**: 演習タイマー動作中に講義タイマーを縮小・薄表示
 
 ### JavaScript Architecture
-- **TimerApp Class**: メインアプリケーションクラス
+- **TimerApp Class**: メインアプリケーションクラス（演習タイマーロジックを内包）
 - **EditorManager Class**: Quill.jsエディタ管理
 - **DocumentManager Class**: ドキュメント保存・読込・削除
 - **ResizerManager Class**: 分割パネルのリサイズ管理
 - **DataManager Class**: 設定のエクスポート/インポート
-- **I18nManager Class**: 多言語対応の翻訳管理
+- **I18nManager Class**: 多言語対応の翻訳管理（`data-i18n-placeholder` / `data-i18n-title` 属性対応）
 - **Event-driven**: DOM イベントハンドリング
 - **State Management**: アプリケーション状態管理
 - **Settings Persistence**: LocalStorage による設定保存
+
+### Exercise Timer State (TimerApp内)
+```javascript
+exerciseMode          // boolean: 演習タイマー動作中かどうか
+exerciseSetupVisible  // boolean: セットアップパネル表示中かどうか
+exerciseTimeRemaining // number: 残り秒数
+exerciseIsOvertime    // boolean: オーバータイム中かどうか
+exerciseInterval      // setInterval ID
+exerciseTitle         // string: 現在の演習タイトル
+exerciseOriginalTime  // number: 開始時の秒数（進捗バー計算用）
+exerciseSetupTime     // number: セットアップ画面での分数
+exerciseEndTime       // Date: 終了予定時刻（clock-based timing）
+nextExerciseTitle     // string: 次の演習タイトル
+nextExerciseTime      // number: 次の演習の分数
+exerciseTitleHistory  // string[]: タイトル履歴（LocalStorage: 'exerciseTitleHistory'）
+```
 
 ## Key Features Added During Development
 
@@ -208,6 +249,15 @@ l_timer/
 - ダークモードアイコン可視性改善
 - 設定画面の高さ固定
 - ツールチップの多言語対応
+- 全アクションボタンをSVGアイコン化
+
+### Phase 7: Exercise Timer
+- 演習タイマー機能の追加
+- 講義タイマー上部への表示（オレンジ）
+- タイトル入力と履歴機能（datalist）
+- 次の演習の事前設定と自動スタート
+- 講義タイマーの縮小・薄表示連動
+- i18n対応（`data-i18n-placeholder` / `data-i18n-title` 属性の新規サポート）
 
 ## Browser Compatibility
 - **Chrome/Edge**: フル機能対応
@@ -221,6 +271,9 @@ l_timer/
 - フルスクリーンモードでプレゼンテーション使用可能
 
 ## Recent Updates
+- 演習タイマー機能の追加（Phase 7）
+- 全アクションボタンのSVGアイコン化
+- i18n の `data-i18n-placeholder` / `data-i18n-title` 属性サポート追加
 - 多言語対応（日本語/英語）の実装
 - 初回起動時の言語選択ダイアログ
 - WYSIWYGエディタの統合
@@ -229,9 +282,6 @@ l_timer/
 - ドキュメント管理システム
 - 分割画面とリサイズ機能
 - タブ型設定画面
-- 設定画面の高さ固定
-- SVGアイコンのダークモード対応（スパナアイコンに変更）
-- ツールチップの完全多言語化
 - CSSコンテナクエリによる動的フォントサイズ調整
 - 7桁フォント幅に連動するプログレスバー
 - タイマー枠の削除（フラットデザイン化）

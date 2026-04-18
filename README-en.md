@@ -23,35 +23,49 @@ The content below was automatically written by Claude Code and might sound a bit
 - **Custom end time**: Adjust end time in real-time (-10/-1/+1/+10 min)
 - **Countdown timer**: Automatically calculates remaining time from custom end time
 
+### ⏱ Exercise Timer
+- **Available during lecture and overtime**: Launch with the stopwatch icon button
+- **Independent from lecture timer**: Lecture timer continues running during exercise
+- **Exercise title input**: Previously entered titles are suggested as candidates (up to 20)
+- **Time adjustment**: Flexible setup with -10/-1/+1/+10 buttons (default 15 min)
+- **Exercise timer display**: Shown above the lecture timer in orange
+- **Overtime support**: Counts up in red if no next exercise is queued
+- **Auto-start next exercise**: Use the "Next" button to pre-configure the next exercise title and time — it starts automatically when the current one ends
+- **Lecture timer integration**: Lecture timer shrinks and dims while exercise is running
+- **Sounds**: Uses the same warning, end, and overtime sounds as the lecture timer
+
 ### 🔊 Audio System
 - **3 sound types** × **3 variations**:
-  - Warning sound: Pre-lecture warning (default 3 min before, adjustable 1-10 min)
+  - Warning sound: Pre-lecture/exercise warning (default 3 min before, adjustable 1-10 min)
   - End sound: Session completion notification
   - Overtime sound: Periodic sound during overtime (default 60 sec interval, adjustable 10-300 sec)
 - **Volume control**: 0-100% slider
-- **Quick mute**: Toggle mute instantly with 🔊/🔇 button
+- **Quick mute**: Toggle mute instantly with the mute button
 - **Auto-unmute**: Automatically unmutes when lecture/break starts
 - **Test playback**: Preview each sound in settings
 
 ### 🎨 User Interface
 - **Responsive design**: Mobile and desktop support
-- **Dark mode/Light mode**: Toggle with 🌙/☀️ button
+- **Dark mode/Light mode**: Toggle with the theme button
 - **Fullscreen support**: Presentation mode with ⛶ button
 - **Flat design**: Clean UI with removed timer borders and shadows
-- **SVG icons**: Wrench (settings), pen (editor), speaker (mute), etc.
+- **SVG icons**: All buttons use unified SVG icons
 - **Color themes**:
   - During lecture: Blue tones
   - During break: Green tones
   - Overtime: Red tones
+  - Exercise timer: Orange tones
 - **Dynamic layout**:
   - Timer font size smoothly adjusts to screen width
   - Progress bar automatically sized to match 7-digit monospace font width
   - Timer size responds to editor/timer ratio changes
-- **Icon buttons**: Unified design
+- **Icon buttons**: Unified SVG design
+  - ▶ Start lecture
+  - 📖 Start lecture (during break)
   - ☕ Start break (10 min)
-  - 🍽️ Start lunch break (60 min)
-  - 📚 Start lecture (during break)
-  - 💤 Stop
+  - 🍽 Start lunch break (60 min)
+  - ⏹ Stop
+  - ⏱ Launch exercise timer
 
 ### ⚙️ Settings
 - **Time settings**:
@@ -88,11 +102,18 @@ The content below was automatically written by Claude Code and might sound a bit
 ## Usage
 
 ### Basic Operations
-1. **Start lecture**: "Start" button or keyboard `L`
-2. **Start break**: ☕ or 🍽️ button, or keyboard `B`
-3. **Stop**: 💤 button or keyboard `S`/`Escape`
-4. **Settings**: ⚙️ button in header to open settings
-5. **Editor**: 📝 button in header to show/hide editor
+1. **Start lecture**: ▶ button or keyboard `L`
+2. **Start break**: ☕ or 🍽 button, or keyboard `B`
+3. **Stop**: ⏹ button or keyboard `S`/`Escape`
+4. **Settings**: Settings button in header to open settings
+5. **Editor**: Editor button in header to show/hide editor
+
+### Using the Exercise Timer
+1. Click the stopwatch icon in the action button row during a lecture
+2. Enter an exercise title and adjust the time with -10/-1/+1/+10 buttons
+3. Click ✓ to start — the exercise timer appears above the lecture timer in orange
+4. Click "Next" during the exercise to pre-configure the next exercise
+5. Click the red ⏹ button to stop the exercise early
 
 ### Adjusting End Time
 - Use adjustment buttons displayed below end time during lecture/break
@@ -149,7 +170,7 @@ l_timer/
 - **CSS Custom Properties**: Theme system
 - **CSS Container Queries**: Dynamic layout adjustment when editor is visible
 - **CSS clamp()**: Fluid font sizes and layouts
-- **LocalStorage**: Settings and document persistence
+- **LocalStorage**: Settings, documents, and exercise title history persistence
 - **ResizeObserver API**: Responsive layout
 - **Responsive Design**: Mobile support
 - **Offline Ready**: No internet connection required
@@ -168,7 +189,7 @@ l_timer/
 
 ### Audio not playing
 1. Check browser audio settings
-2. Verify 🔊 button is not muted
+2. Verify the mute button is not active
 3. Check volume slider is not at 0
 4. Test audio with "Test" button in settings
 

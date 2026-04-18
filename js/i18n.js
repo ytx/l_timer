@@ -60,7 +60,17 @@ class I18nManager {
                 'tooltip-start-lecture-break': '講義開始',
                 'tooltip-start-break1': '休憩開始（10分）',
                 'tooltip-start-break2': '休憩開始（60分）',
-                'tooltip-stop': '終了'
+                'tooltip-stop': '終了',
+                'tooltip-exercise': '演習タイマー',
+                'tooltip-exercise-start': 'スタート',
+                'tooltip-exercise-cancel': 'キャンセル',
+                'tooltip-stop-exercise': '演習終了',
+                'exercise-title-placeholder': '演習タイトル',
+                'next-exercise-label': '次の演習:',
+                'next-exercise-title-placeholder': 'タイトル',
+                'tooltip-next-exercise-close': '非表示',
+                'tooltip-next-exercise-open': '次の演習を設定',
+                'next-exercise-open-label': 'Next'
             },
             en: {
                 // Modal header
@@ -120,7 +130,17 @@ class I18nManager {
                 'tooltip-start-lecture-break': 'Start Lecture',
                 'tooltip-start-break1': 'Start Break (10min)',
                 'tooltip-start-break2': 'Start Break (60min)',
-                'tooltip-stop': 'Stop'
+                'tooltip-stop': 'Stop',
+                'tooltip-exercise': 'Exercise Timer',
+                'tooltip-exercise-start': 'Start',
+                'tooltip-exercise-cancel': 'Cancel',
+                'tooltip-stop-exercise': 'Stop Exercise',
+                'exercise-title-placeholder': 'Exercise Title',
+                'next-exercise-label': 'Next:',
+                'next-exercise-title-placeholder': 'Title',
+                'tooltip-next-exercise-close': 'Hide',
+                'tooltip-next-exercise-open': 'Set Next Exercise',
+                'next-exercise-open-label': 'Next'
             }
         };
 
@@ -271,17 +291,30 @@ class I18nManager {
             const translation = this.translations[this.currentLanguage][key];
 
             if (translation) {
-                // For buttons, labels, headings, and tabs, update textContent
                 if (element.tagName === 'BUTTON' || element.tagName === 'LABEL' ||
                     element.tagName === 'H2' || element.tagName === 'H3' ||
                     element.classList.contains('tab-btn')) {
                     element.textContent = translation;
-                }
-                // For option elements, update textContent
-                else if (element.tagName === 'OPTION') {
+                } else if (element.tagName === 'OPTION') {
+                    element.textContent = translation;
+                } else {
                     element.textContent = translation;
                 }
             }
+        });
+
+        // Update placeholders
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+            const key = element.getAttribute('data-i18n-placeholder');
+            const translation = this.translations[this.currentLanguage][key];
+            if (translation) element.placeholder = translation;
+        });
+
+        // Update title attributes (tooltips) via data-i18n-title
+        document.querySelectorAll('[data-i18n-title]').forEach(element => {
+            const key = element.getAttribute('data-i18n-title');
+            const translation = this.translations[this.currentLanguage][key];
+            if (translation) element.title = translation;
         });
 
         // Update tooltips (title attributes)
@@ -304,6 +337,16 @@ class I18nManager {
         if (startBreak1) startBreak1.title = this.t('tooltip-start-break1');
         if (startBreak2) startBreak2.title = this.t('tooltip-start-break2');
         if (stopTimer) stopTimer.title = this.t('tooltip-stop');
+
+        // Exercise buttons (also covered by data-i18n-title, but kept for safety)
+        const startExercise = document.getElementById('start-exercise');
+        if (startExercise) startExercise.title = this.t('tooltip-exercise');
+        const stopExercise = document.getElementById('stop-exercise');
+        if (stopExercise) stopExercise.title = this.t('tooltip-stop-exercise');
+        const exerciseStartConfirm = document.getElementById('exercise-start-confirm');
+        if (exerciseStartConfirm) exerciseStartConfirm.title = this.t('tooltip-exercise-start');
+        const exerciseSetupCancel = document.getElementById('exercise-setup-cancel');
+        if (exerciseSetupCancel) exerciseSetupCancel.title = this.t('tooltip-exercise-cancel');
     }
 
     t(key) {

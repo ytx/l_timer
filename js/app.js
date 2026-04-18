@@ -16,6 +16,20 @@ class TimerApp {
         this.customEndTime = null; // Custom end time override
         this.originalTimeRemaining = 0; // Store original time for reset
         
+        // Exercise timer state
+        this.exerciseMode = false;
+        this.exerciseSetupVisible = false;
+        this.exerciseTimeRemaining = 15 * 60;
+        this.exerciseIsOvertime = false;
+        this.exerciseInterval = null;
+        this.exerciseTitle = '';
+        this.exerciseOriginalTime = 15 * 60;
+        this.exerciseSetupTime = 15;
+        this.exerciseEndTime = null;
+        this.nextExerciseTitle = '';
+        this.nextExerciseTime = 15;
+        this.exerciseTitleHistory = [];
+
         this.sounds = {
             sound1: new Audio('audio/sound1-1.wav'), // 警告音
             sound2: new Audio('audio/sound2-1.wav'), // 終了音
@@ -91,6 +105,26 @@ class TimerApp {
             settingsModal: document.getElementById('settings-modal'),
             closeSettings: document.getElementById('close-settings'),
             
+            // Exercise elements
+            exerciseArea: document.getElementById('exercise-area'),
+            exerciseSetup: document.getElementById('exercise-setup'),
+            exerciseRunning: document.getElementById('exercise-running'),
+            exerciseTitleInput: document.getElementById('exercise-title-input'),
+            exerciseSetupTimeDisplay: document.getElementById('exercise-setup-time-display'),
+            exerciseTimer: document.getElementById('exercise-timer'),
+            exerciseProgressFill: document.getElementById('exercise-progress-fill'),
+            exerciseTitleDisplay: document.getElementById('exercise-title-display'),
+            stopExerciseBtn: document.getElementById('stop-exercise'),
+            startExerciseBtn: document.getElementById('start-exercise'),
+            exerciseStartConfirmBtn: document.getElementById('exercise-start-confirm'),
+            exerciseSetupCancelBtn: document.getElementById('exercise-setup-cancel'),
+            nextExerciseTitleInput: document.getElementById('next-exercise-title'),
+            nextExerciseTimeDisplay: document.getElementById('next-exercise-time-display'),
+            exerciseTitlesDatalist: document.getElementById('exercise-titles-datalist'),
+            nextExercisePanelEl: document.getElementById('next-exercise-panel'),
+            nextExerciseCloseBtnEl: document.getElementById('next-exercise-close-btn'),
+            nextExerciseOpenBtnEl: document.getElementById('next-exercise-open-btn'),
+
             // Settings inputs
             lectureTimeSettings: document.getElementById('lecture-time-settings'),
             break1TimeSettings: document.getElementById('break1-time-settings'),
@@ -164,6 +198,39 @@ class TimerApp {
             });
         });
         
+        // Exercise buttons
+        this.elements.startExerciseBtn.addEventListener('click', () => this.showExerciseSetup());
+        this.elements.exerciseStartConfirmBtn.addEventListener('click', () => this.confirmStartExercise());
+        this.elements.exerciseSetupCancelBtn.addEventListener('click', () => this.hideExerciseSetup());
+        this.elements.stopExerciseBtn.addEventListener('click', () => this.stopExercise());
+
+        // Exercise setup time adjust
+        document.getElementById('exercise-setup-minus-10').addEventListener('click', () => this.adjustExerciseSetupTime(-10));
+        document.getElementById('exercise-setup-minus-1').addEventListener('click', () => this.adjustExerciseSetupTime(-1));
+        document.getElementById('exercise-setup-plus-1').addEventListener('click', () => this.adjustExerciseSetupTime(1));
+        document.getElementById('exercise-setup-plus-10').addEventListener('click', () => this.adjustExerciseSetupTime(10));
+
+        // Exercise running time adjust
+        document.getElementById('exercise-minus-10').addEventListener('click', () => this.adjustExerciseTime(-10));
+        document.getElementById('exercise-minus-1').addEventListener('click', () => this.adjustExerciseTime(-1));
+        document.getElementById('exercise-plus-1').addEventListener('click', () => this.adjustExerciseTime(1));
+        document.getElementById('exercise-plus-10').addEventListener('click', () => this.adjustExerciseTime(10));
+
+        // Next exercise time adjust
+        document.getElementById('next-exercise-minus-10').addEventListener('click', () => this.adjustNextExerciseTime(-10));
+        document.getElementById('next-exercise-minus-1').addEventListener('click', () => this.adjustNextExerciseTime(-1));
+        document.getElementById('next-exercise-plus-1').addEventListener('click', () => this.adjustNextExerciseTime(1));
+        document.getElementById('next-exercise-plus-10').addEventListener('click', () => this.adjustNextExerciseTime(10));
+
+        // Next exercise title
+        this.elements.nextExerciseTitleInput.addEventListener('input', (e) => {
+            this.nextExerciseTitle = e.target.value;
+        });
+
+        // Next exercise panel close/open
+        this.elements.nextExerciseCloseBtnEl.addEventListener('click', () => this.hideNextExercisePanel());
+        this.elements.nextExerciseOpenBtnEl.addEventListener('click', () => this.showNextExercisePanel());
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
         
@@ -287,8 +354,9 @@ class TimerApp {
         }
 
         this.updateSoundVolumes();
+        this.initExercise();
     }
-    
+
     handleTimeAdjustment(e) {
         const action = e.target.dataset.action;
         
@@ -389,6 +457,7 @@ class TimerApp {
     }
     
     startBreak(breakType) {
+        this.stopExercise();
         this.currentMode = 'break';
         this.selectedBreakType = breakType;
         const breakTime = breakType === 1 ? this.break1Time : this.break2Time;
@@ -451,11 +520,13 @@ class TimerApp {
     }
     
     stopTimer() {
+        this.stopExercise();
+
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
-        
+
         this.currentMode = 'idle';
         this.timeRemaining = 0;
         this.isOvertime = false;
@@ -658,11 +729,15 @@ class TimerApp {
         const isBreakRunning = this.currentMode === 'break';
         const isIdle = this.currentMode === 'idle';
         
-        this.elements.startLectureBtn.style.display = isIdle ? 'inline-block' : 'none';
-        this.elements.startLectureBreakBtn.style.display = isBreakRunning ? 'inline-block' : 'none';
-        this.elements.startBreak1Btn.style.display = isBreakRunning ? 'none' : 'inline-block';
-        this.elements.startBreak2Btn.style.display = isBreakRunning ? 'none' : 'inline-block';
-        this.elements.stopTimerBtn.style.display = (isLectureRunning || isBreakRunning) ? 'inline-block' : 'none';
+        this.elements.startLectureBtn.style.display = isIdle ? 'inline-flex' : 'none';
+        this.elements.startLectureBreakBtn.style.display = isBreakRunning ? 'inline-flex' : 'none';
+        this.elements.startBreak1Btn.style.display = isBreakRunning ? 'none' : 'inline-flex';
+        this.elements.startBreak2Btn.style.display = isBreakRunning ? 'none' : 'inline-flex';
+        this.elements.stopTimerBtn.style.display = (isLectureRunning || isBreakRunning) ? 'inline-flex' : 'none';
+
+        // Exercise button: visible during lecture (normal + overtime), not during setup/running
+        const showExercise = isLectureRunning && !this.exerciseMode && !this.exerciseSetupVisible;
+        this.elements.startExerciseBtn.style.display = showExercise ? 'inline-flex' : 'none';
     }
     
     formatTime(seconds) {
@@ -757,6 +832,204 @@ class TimerApp {
         localStorage.setItem('timerSettings', JSON.stringify(settings));
     }
     
+    // ============================================================
+    // Exercise Timer Methods
+    // ============================================================
+
+    initExercise() {
+        this.loadExerciseTitleHistory();
+        this.updateExerciseTitleDatalist();
+    }
+
+    showExerciseSetup() {
+        this.exerciseSetupTime = 15;
+        this.exerciseSetupVisible = true;
+        this.elements.exerciseSetupTimeDisplay.textContent = this.formatTime(this.exerciseSetupTime * 60);
+        this.elements.exerciseTitleInput.value = '';
+        this.elements.exerciseArea.style.display = 'block';
+        this.elements.exerciseSetup.style.display = 'flex';
+        this.elements.exerciseRunning.style.display = 'none';
+        this.elements.exerciseTitleInput.focus();
+        this.updateButtonStates();
+    }
+
+    hideExerciseSetup() {
+        this.exerciseSetupVisible = false;
+        this.elements.exerciseSetup.style.display = 'none';
+        if (!this.exerciseMode) {
+            this.elements.exerciseArea.style.display = 'none';
+        }
+        this.updateButtonStates();
+    }
+
+    confirmStartExercise() {
+        const title = this.elements.exerciseTitleInput.value.trim() || '演習';
+        this.startExercise(title, this.exerciseSetupTime);
+    }
+
+    startExercise(title, minutes) {
+        this.exerciseTitle = title;
+        this.exerciseOriginalTime = minutes * 60;
+        this.exerciseIsOvertime = false;
+        this.exerciseMode = true;
+        this.exerciseSetupVisible = false;
+        this.exerciseEndTime = new Date(Date.now() + minutes * 60 * 1000);
+
+        if (title && title !== '演習') {
+            this.addToExerciseTitleHistory(title);
+        }
+
+        this.elements.exerciseArea.style.display = 'block';
+        this.elements.exerciseSetup.style.display = 'none';
+        this.elements.exerciseRunning.style.display = 'block';
+        this.elements.timer.classList.add('exercise-active');
+        this.elements.exerciseTitleDisplay.textContent = this.exerciseTitle;
+        this.elements.exerciseTimer.classList.remove('overtime');
+
+        // Reset next exercise fields and show the panel
+        this.nextExerciseTitle = '';
+        this.nextExerciseTime = 15;
+        this.elements.nextExerciseTitleInput.value = '';
+        this.updateNextExerciseTimeDisplay();
+        this.hideNextExercisePanel();
+
+        this.updateExerciseDisplay();
+
+        if (this.exerciseInterval) clearInterval(this.exerciseInterval);
+        this.exerciseInterval = setInterval(() => this.exerciseTick(), 1000);
+
+        this.updateButtonStates();
+    }
+
+    stopExercise() {
+        if (this.exerciseInterval) {
+            clearInterval(this.exerciseInterval);
+            this.exerciseInterval = null;
+        }
+        this.exerciseMode = false;
+        this.exerciseSetupVisible = false;
+        this.exerciseIsOvertime = false;
+        this.elements.timer.classList.remove('exercise-active');
+        this.elements.exerciseArea.style.display = 'none';
+        this.elements.exerciseRunning.style.display = 'none';
+        this.elements.exerciseSetup.style.display = 'none';
+        this.updateButtonStates();
+    }
+
+    exerciseTick() {
+        this.exerciseTimeRemaining = Math.floor((this.exerciseEndTime - Date.now()) / 1000);
+
+        if (this.exerciseTimeRemaining <= 0 && !this.exerciseIsOvertime) {
+            this.exerciseIsOvertime = true;
+            if (this.nextExerciseTitle.trim()) {
+                // Auto-start next exercise
+                this.playSound('sound2');
+                clearInterval(this.exerciseInterval);
+                this.exerciseInterval = null;
+                const nextTitle = this.nextExerciseTitle;
+                const nextTime = this.nextExerciseTime;
+                setTimeout(() => this.startExercise(nextTitle, nextTime), 300);
+                return;
+            } else {
+                this.playSound('sound2');
+                this.elements.exerciseTimer.classList.add('overtime');
+            }
+        }
+
+        if (this.exerciseIsOvertime) {
+            const sec = Math.abs(this.exerciseTimeRemaining);
+            if (sec > 0 && sec % this.tickInterval === 0) {
+                this.playSound('sound3');
+            }
+        } else if (this.exerciseTimeRemaining === this.warningTime * 60) {
+            this.playSound('sound1');
+        }
+
+        this.updateExerciseDisplay();
+    }
+
+    updateExerciseDisplay() {
+        const el = this.elements.exerciseTimer;
+        if (this.exerciseIsOvertime) {
+            el.textContent = '+' + this.formatTime(Math.abs(this.exerciseTimeRemaining));
+        } else {
+            el.textContent = this.formatTime(Math.max(0, this.exerciseTimeRemaining));
+        }
+        const progress = this.exerciseIsOvertime ? 100 :
+            Math.min(100, Math.max(0, ((this.exerciseOriginalTime - this.exerciseTimeRemaining) / this.exerciseOriginalTime) * 100));
+        this.elements.exerciseProgressFill.style.width = progress + '%';
+    }
+
+    adjustExerciseSetupTime(delta) {
+        this.exerciseSetupTime = Math.max(1, Math.min(120, this.exerciseSetupTime + delta));
+        this.elements.exerciseSetupTimeDisplay.textContent = this.formatTime(this.exerciseSetupTime * 60);
+    }
+
+    adjustExerciseTime(delta) {
+        const newEnd = new Date(this.exerciseEndTime.getTime() + delta * 60 * 1000);
+        if (!this.exerciseIsOvertime && newEnd <= new Date()) return;
+        this.exerciseEndTime = newEnd;
+        this.exerciseTimeRemaining = Math.floor((this.exerciseEndTime - Date.now()) / 1000);
+        // Adding time during overtime restores countdown
+        if (this.exerciseIsOvertime && this.exerciseTimeRemaining > 0) {
+            this.exerciseIsOvertime = false;
+            this.elements.exerciseTimer.classList.remove('overtime');
+        }
+        this.updateExerciseDisplay();
+    }
+
+    adjustNextExerciseTime(delta) {
+        this.nextExerciseTime = Math.max(1, Math.min(120, this.nextExerciseTime + delta));
+        this.updateNextExerciseTimeDisplay();
+    }
+
+    updateNextExerciseTimeDisplay() {
+        this.elements.nextExerciseTimeDisplay.textContent = this.formatTime(this.nextExerciseTime * 60);
+    }
+
+    showNextExercisePanel() {
+        this.elements.nextExercisePanelEl.style.display = 'flex';
+        this.elements.nextExerciseOpenBtnEl.style.display = 'none';
+    }
+
+    hideNextExercisePanel() {
+        this.elements.nextExercisePanelEl.style.display = 'none';
+        this.elements.nextExerciseOpenBtnEl.style.display = 'inline-flex';
+    }
+
+    loadExerciseTitleHistory() {
+        try {
+            const saved = localStorage.getItem('exerciseTitleHistory');
+            if (saved) this.exerciseTitleHistory = JSON.parse(saved);
+        } catch (e) {
+            this.exerciseTitleHistory = [];
+        }
+    }
+
+    saveExerciseTitleHistory() {
+        try {
+            localStorage.setItem('exerciseTitleHistory', JSON.stringify(this.exerciseTitleHistory));
+        } catch (e) {}
+    }
+
+    addToExerciseTitleHistory(title) {
+        this.exerciseTitleHistory = this.exerciseTitleHistory.filter(t => t !== title);
+        this.exerciseTitleHistory.unshift(title);
+        if (this.exerciseTitleHistory.length > 20) this.exerciseTitleHistory.length = 20;
+        this.saveExerciseTitleHistory();
+        this.updateExerciseTitleDatalist();
+    }
+
+    updateExerciseTitleDatalist() {
+        const dl = this.elements.exerciseTitlesDatalist;
+        dl.innerHTML = '';
+        this.exerciseTitleHistory.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            dl.appendChild(opt);
+        });
+    }
+
     handleKeyboard(e) {
         if (e.target.tagName === 'INPUT') return;
         

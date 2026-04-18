@@ -17,6 +17,8 @@
   --break-bg: #f1f8e9;
   --modal-bg: rgba(0, 0, 0, 0.5);
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --exercise-color: #e67e22;
+  --exercise-hover: #d35400;
 }
 
 [data-theme="dark"] {
@@ -35,6 +37,8 @@
   --danger-hover: #d32f2f;
   --lecture-bg: #1e3a5f;
   --break-bg: #2e4e2e;
+  --exercise-color: #f39c12;
+  --exercise-hover: #e67e22;
   --modal-bg: rgba(0, 0, 0, 0.7);
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
@@ -294,6 +298,16 @@ body {
   font-size: clamp(2rem, 20cqw, 10rem);
 }
 
+/* 演習タイマー動作中は講義タイマーを縮小・薄く */
+.timer.exercise-active {
+  font-size: clamp(1.8rem, 6vw, 7rem);
+  opacity: 0.45;
+}
+
+.app-container.editor-visible .timer.exercise-active {
+  font-size: clamp(1.5rem, 12cqw, 6rem);
+}
+
 .timer.overtime {
   color: var(--danger-color);
 }
@@ -320,6 +334,7 @@ body {
 
 .time-adjust-controls {
   display: flex;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
   align-items: center;
@@ -1266,4 +1281,284 @@ body {
 .bmc-url:hover {
   color: var(--primary-hover);
   text-decoration: underline;
+}
+/* ============================================================
+   Exercise Timer
+   ============================================================ */
+
+#exercise-area {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--text-color);
+  text-align: center;
+}
+
+/* The exercise timer shares .timer font-size; color overridden here */
+.exercise-timer-text {
+  color: var(--exercise-color) !important;
+}
+
+.exercise-timer-text.overtime {
+  color: var(--danger-color) !important;
+}
+
+#exercise-progress-fill {
+  background: linear-gradient(90deg, var(--exercise-color), #f39c12) !important;
+}
+
+/* --- Setup Panel --- */
+#exercise-setup {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+#exercise-title-input {
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--exercise-color);
+  border-radius: 8px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  width: 100%;
+  max-width: 400px;
+  outline: none;
+}
+
+#exercise-title-input:focus {
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.25);
+}
+
+.exercise-setup-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.exercise-setup-title-row #exercise-title-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Setup action icon buttons */
+.exercise-confirm-icon-btn {
+  color: var(--exercise-color);
+  border-color: var(--exercise-color);
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.exercise-confirm-icon-btn:hover {
+  background-color: var(--exercise-color);
+  transform: scale(1.1);
+}
+
+.exercise-confirm-icon-btn:hover svg {
+  stroke: white;
+}
+
+.exercise-cancel-icon-btn {
+  color: var(--text-color);
+  border-color: var(--border-color);
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.exercise-cancel-icon-btn:hover {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  transform: scale(1.1);
+}
+
+.exercise-cancel-icon-btn:hover svg {
+  stroke: white;
+}
+
+/* Orange adjust buttons for exercise panels */
+.exercise-adjust-btn {
+  background-color: var(--exercise-color);
+  color: white;
+}
+
+.exercise-adjust-btn:hover {
+  background-color: var(--exercise-hover);
+}
+
+/* --- Running Panel --- */
+.exercise-title-text {
+  font-size: clamp(1rem, 2.5vw, 1.8rem);
+  font-weight: 600;
+  color: var(--exercise-color);
+}
+
+.exercise-stop-btn {
+  color: var(--danger-color) !important;
+  border-color: var(--danger-color) !important;
+  width: 35px !important;
+  height: 35px !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.exercise-stop-btn:hover {
+  background-color: var(--danger-color) !important;
+  transform: scale(1.1);
+}
+
+.exercise-stop-btn:hover svg {
+  stroke: white;
+}
+
+/* --- Exercise Action Button --- */
+.exercise-icon-btn {
+  color: var(--exercise-color);
+  border-color: var(--exercise-color);
+}
+
+.exercise-icon-btn:hover {
+  background-color: var(--exercise-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+.exercise-icon-btn:hover svg {
+  stroke: white;
+}
+
+/* --- Left/Right layout for running panel --- */
+.exercise-main-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.exercise-current {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+/* --- Next Exercise Panel (right column, 3 rows) --- */
+.next-exercise-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--exercise-color);
+  border-radius: 12px;
+  flex-shrink: 0;
+  width: auto;
+  align-self: center;
+}
+
+.next-exercise-label {
+  font-size: 0.85rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+#next-exercise-title {
+  font-size: 0.9rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  width: 100%;
+  outline: none;
+}
+
+#next-exercise-title:focus {
+  border-color: var(--exercise-color);
+}
+
+.next-exercise-time-text {
+  font-family: 'Courier New', monospace;
+  font-size: 2.8rem;
+  font-weight: bold;
+  color: var(--exercise-color);
+  text-align: center;
+}
+
+.next-exercise-panel .time-adjust-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.time-adjust-btn.small {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  min-width: 2.2rem;
+}
+
+/* Next exercise panel header row (label + close button) */
+.next-exercise-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.4rem;
+}
+
+.next-exercise-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.45;
+  padding: 2px;
+  line-height: 1;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.next-exercise-close-btn:hover {
+  opacity: 1;
+  background: var(--border-color);
+}
+
+/* exercise adjust row: buttons + Next label side by side */
+.exercise-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
+}
+
+.exercise-bottom-row .time-adjust-controls {
+  margin-top: 0;
+}
+
+/* "Next" pill button (shown when next-exercise-panel is hidden) */
+.next-exercise-open-btn {
+  background: none;
+  border: 2px solid var(--exercise-color);
+  border-radius: 20px;
+  padding: 0.2rem 0.9rem;
+  cursor: pointer;
+  color: var(--exercise-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+}
+
+.next-exercise-open-btn:hover {
+  background: var(--exercise-color);
+  color: white;
+  transform: scale(1.05);
 }

@@ -54,6 +54,92 @@
 
             <!-- Time Display -->
             <div class="time-display">
+
+                <!-- Exercise Area (shown above main timer during lecture) -->
+                <div id="exercise-area" style="display: none;">
+                    <datalist id="exercise-titles-datalist"></datalist>
+
+                    <!-- Setup Panel -->
+                    <div id="exercise-setup" style="display: none;">
+                        <div class="exercise-setup-title-row">
+                            <input type="text" id="exercise-title-input" list="exercise-titles-datalist"
+                                   placeholder="演習タイトル" data-i18n-placeholder="exercise-title-placeholder" autocomplete="off">
+                            <button id="exercise-start-confirm" class="icon-btn exercise-confirm-icon-btn" title="スタート" data-i18n-title="tooltip-exercise-start">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </button>
+                            <button id="exercise-setup-cancel" class="icon-btn exercise-cancel-icon-btn" title="キャンセル" data-i18n-title="tooltip-exercise-cancel">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="timer exercise-timer-text" id="exercise-setup-time-display">15:00</div>
+                        <div class="time-adjust-controls">
+                            <button class="time-adjust-btn exercise-adjust-btn" id="exercise-setup-minus-10">-10</button>
+                            <button class="time-adjust-btn exercise-adjust-btn" id="exercise-setup-minus-1">-1</button>
+                            <button class="time-adjust-btn exercise-adjust-btn" id="exercise-setup-plus-1">+1</button>
+                            <button class="time-adjust-btn exercise-adjust-btn" id="exercise-setup-plus-10">+10</button>
+                        </div>
+                    </div>
+
+                    <!-- Running Panel -->
+                    <div id="exercise-running" style="display: none;">
+                        <div class="exercise-main-layout">
+
+                            <!-- Left: current exercise -->
+                            <div class="exercise-current">
+                                <span id="exercise-title-display" class="exercise-title-text"></span>
+                                <div class="timer exercise-timer-text" id="exercise-timer">15:00</div>
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="exercise-progress-fill"></div>
+                                    </div>
+                                </div>
+                                <div class="exercise-bottom-row">
+                                    <div class="time-adjust-controls">
+                                        <button class="time-adjust-btn exercise-adjust-btn" id="exercise-minus-10">-10</button>
+                                        <button class="time-adjust-btn exercise-adjust-btn" id="exercise-minus-1">-1</button>
+                                        <button class="time-adjust-btn exercise-adjust-btn" id="exercise-plus-1">+1</button>
+                                        <button class="time-adjust-btn exercise-adjust-btn" id="exercise-plus-10">+10</button>
+                                    </div>
+                                    <button id="stop-exercise" class="icon-btn exercise-stop-btn" title="演習終了" data-i18n-title="tooltip-stop-exercise">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="4" y="4" width="16" height="16" rx="2"/>
+                                        </svg>
+                                    </button>
+                                    <button id="next-exercise-open-btn" class="next-exercise-open-btn" style="display:none;" title="次の演習を設定" data-i18n-title="tooltip-next-exercise-open" data-i18n="next-exercise-open-label">Next</button>
+                                </div>
+                            </div>
+
+                            <!-- Right: next exercise (3 rows) -->
+                            <div class="next-exercise-panel" id="next-exercise-panel">
+                                <div class="next-exercise-header-row">
+                                    <span class="next-exercise-label" data-i18n="next-exercise-label">次の演習:</span>
+                                    <button id="next-exercise-close-btn" class="next-exercise-close-btn" title="非表示" data-i18n-title="tooltip-next-exercise-close">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <input type="text" id="next-exercise-title" list="exercise-titles-datalist"
+                                       placeholder="タイトル" data-i18n-placeholder="next-exercise-title-placeholder" autocomplete="off">
+                                <span id="next-exercise-time-display" class="next-exercise-time-text">15:00</span>
+                                <div class="time-adjust-controls">
+                                    <button class="time-adjust-btn small exercise-adjust-btn" id="next-exercise-minus-10">-10</button>
+                                    <button class="time-adjust-btn small exercise-adjust-btn" id="next-exercise-minus-1">-1</button>
+                                    <button class="time-adjust-btn small exercise-adjust-btn" id="next-exercise-plus-1">+1</button>
+                                    <button class="time-adjust-btn small exercise-adjust-btn" id="next-exercise-plus-10">+10</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
                 <div class="timer" id="timer">50:00</div>
                 
                 <!-- Progress Indicator -->
@@ -98,6 +184,14 @@
                 <button id="stop-timer" class="icon-btn stop-icon-btn" style="display: none;" title="停止">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    </svg>
+                </button>
+                <button id="start-exercise" class="icon-btn exercise-icon-btn" style="display: none;" title="演習開始" data-i18n-title="tooltip-exercise">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="13" r="8"/>
+                        <polyline points="12 9 12 13 14.5 15.5"/>
+                        <line x1="9" y1="2" x2="15" y2="2"/>
+                        <line x1="12" y1="2" x2="12" y2="5"/>
                     </svg>
                 </button>
             </div>
