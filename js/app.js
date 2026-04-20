@@ -25,6 +25,8 @@ class TimerApp {
         this.exerciseTitle = '';
         this.exerciseOriginalTime = 15 * 60;
         this.exerciseSetupTime = 15;
+        this.defaultExerciseTime = 15;
+        this.defaultNextExerciseTime = 15;
         this.exerciseEndTime = null;
         this.nextExerciseTitle = '';
         this.nextExerciseTime = 15;
@@ -132,6 +134,8 @@ class TimerApp {
             break2TimeSettings: document.getElementById('break2-time-settings'),
             warningTimeSettings: document.getElementById('warning-time-settings'),
             tickIntervalSettings: document.getElementById('tick-interval-settings'),
+            exerciseTimeSettings: document.getElementById('exercise-time-settings'),
+            nextExerciseTimeSettings: document.getElementById('next-exercise-time-settings'),
             
             // Settings controls
             volumeSlider: document.getElementById('volume-slider'),
@@ -272,7 +276,17 @@ class TimerApp {
             this.tickInterval = parseInt(e.target.value) || 10;
             this.saveSettings();
         });
-        
+
+        this.elements.exerciseTimeSettings.addEventListener('input', (e) => {
+            this.defaultExerciseTime = parseInt(e.target.value) || 15;
+            this.saveSettings();
+        });
+
+        this.elements.nextExerciseTimeSettings.addEventListener('input', (e) => {
+            this.defaultNextExerciseTime = parseInt(e.target.value) || 15;
+            this.saveSettings();
+        });
+
         // Sound selection changes
         this.elements.sound1Select.addEventListener('change', (e) => {
             this.sounds.sound1.src = e.target.value;
@@ -303,7 +317,9 @@ class TimerApp {
             this.warningTime = settings.warningTime || 3;
             this.tickInterval = settings.tickInterval || 60;
             this.isMuted = settings.isMuted || false;
-            
+            this.defaultExerciseTime = settings.defaultExerciseTime || 15;
+            this.defaultNextExerciseTime = settings.defaultNextExerciseTime || 15;
+
             this.elements.volumeSlider.value = this.volume * 100;
             this.elements.volumeValue.textContent = Math.round(this.volume * 100) + '%';
             this.elements.lectureTimeSettings.value = this.lectureTime;
@@ -311,6 +327,8 @@ class TimerApp {
             this.elements.break2TimeSettings.value = this.break2Time;
             this.elements.warningTimeSettings.value = this.warningTime;
             this.elements.tickIntervalSettings.value = this.tickInterval;
+            this.elements.exerciseTimeSettings.value = this.defaultExerciseTime;
+            this.elements.nextExerciseTimeSettings.value = this.defaultNextExerciseTime;
             
             // Load sound selections
             if (settings.sound1Src) {
@@ -420,6 +438,22 @@ class TimerApp {
             case 'decrease-tick-interval':
                 this.tickInterval = Math.max(10, this.tickInterval - 10);
                 this.elements.tickIntervalSettings.value = this.tickInterval;
+                break;
+            case 'increase-exercise-time':
+                this.defaultExerciseTime = Math.min(120, this.defaultExerciseTime + 1);
+                this.elements.exerciseTimeSettings.value = this.defaultExerciseTime;
+                break;
+            case 'decrease-exercise-time':
+                this.defaultExerciseTime = Math.max(1, this.defaultExerciseTime - 1);
+                this.elements.exerciseTimeSettings.value = this.defaultExerciseTime;
+                break;
+            case 'increase-next-exercise-time':
+                this.defaultNextExerciseTime = Math.min(120, this.defaultNextExerciseTime + 1);
+                this.elements.nextExerciseTimeSettings.value = this.defaultNextExerciseTime;
+                break;
+            case 'decrease-next-exercise-time':
+                this.defaultNextExerciseTime = Math.max(1, this.defaultNextExerciseTime - 1);
+                this.elements.nextExerciseTimeSettings.value = this.defaultNextExerciseTime;
                 break;
         }
         
@@ -737,12 +771,18 @@ class TimerApp {
         const isLectureRunning = this.currentMode === 'lecture';
         const isBreakRunning = this.currentMode === 'break';
         const isIdle = this.currentMode === 'idle';
-        
+        const exerciseOpen = this.exerciseMode || this.exerciseSetupVisible;
+
         this.elements.startLectureBtn.style.display = isIdle ? 'inline-flex' : 'none';
-        this.elements.startLectureBreakBtn.style.display = isBreakRunning ? 'inline-flex' : 'none';
-        this.elements.startBreak1Btn.style.display = isBreakRunning ? 'none' : 'inline-flex';
-        this.elements.startBreak2Btn.style.display = isBreakRunning ? 'none' : 'inline-flex';
-        this.elements.stopTimerBtn.style.display = (isLectureRunning || isBreakRunning) ? 'inline-flex' : 'none';
+        this.elements.startLectureBreakBtn.style.display = (isBreakRunning && !exerciseOpen) ? 'inline-flex' : 'none';
+        this.elements.startBreak1Btn.style.display = (!isBreakRunning && !exerciseOpen) ? 'inline-flex' : 'none';
+        this.elements.startBreak2Btn.style.display = (!isBreakRunning && !exerciseOpen) ? 'inline-flex' : 'none';
+        this.elements.stopTimerBtn.style.display = ((isLectureRunning || isBreakRunning) && !exerciseOpen) ? 'inline-flex' : 'none';
+
+        // End-time adjust controls: hide while exercise is open
+        if (exerciseOpen) {
+            this.elements.timeAdjustControls.style.display = 'none';
+        }
 
         // Exercise button: visible during lecture (normal + overtime), not during setup/running
         const showExercise = isLectureRunning && !this.exerciseMode && !this.exerciseSetupVisible;
@@ -836,7 +876,9 @@ class TimerApp {
             sound1Src: this.getRelativePath(this.sounds.sound1.src),
             sound2Src: this.getRelativePath(this.sounds.sound2.src),
             sound3Src: this.getRelativePath(this.sounds.sound3.src),
-            isMuted: this.isMuted
+            isMuted: this.isMuted,
+            defaultExerciseTime: this.defaultExerciseTime,
+            defaultNextExerciseTime: this.defaultNextExerciseTime
         };
         localStorage.setItem('timerSettings', JSON.stringify(settings));
     }
@@ -851,7 +893,7 @@ class TimerApp {
     }
 
     showExerciseSetup() {
-        this.exerciseSetupTime = 15;
+        this.exerciseSetupTime = this.defaultExerciseTime;
         this.exerciseSetupVisible = true;
         this.elements.exerciseSetupTimeDisplay.textContent = this.formatTime(this.exerciseSetupTime * 60);
         this.elements.exerciseTitleInput.value = '';
@@ -867,6 +909,9 @@ class TimerApp {
         this.elements.exerciseSetup.style.display = 'none';
         if (!this.exerciseMode) {
             this.elements.exerciseArea.style.display = 'none';
+            if (this.currentMode !== 'idle') {
+                this.showTimeAdjustControls();
+            }
         }
         this.updateButtonStates();
     }
@@ -897,7 +942,7 @@ class TimerApp {
 
         // Reset next exercise fields and show the panel
         this.nextExerciseTitle = '';
-        this.nextExerciseTime = 15;
+        this.nextExerciseTime = this.defaultNextExerciseTime;
         this.elements.nextExerciseTitleInput.value = '';
         this.updateNextExerciseTimeDisplay();
         this.hideNextExercisePanel();
@@ -924,6 +969,9 @@ class TimerApp {
         this.elements.exerciseRunning.style.display = 'none';
         this.elements.exerciseSetup.style.display = 'none';
         this.updateExerciseEndTime();
+        if (this.currentMode !== 'idle') {
+            this.showTimeAdjustControls();
+        }
         this.updateButtonStates();
     }
 

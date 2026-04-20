@@ -18,6 +18,8 @@ class I18nManager {
                 'label-lunch-time': '昼休憩時間 (分):',
                 'label-warning-time': '警告タイミング (分前):',
                 'label-tick-interval': '経過通知間隔 (秒):',
+                'label-exercise-time': '演習時間 (分):',
+                'label-next-exercise-time': '次の演習時間 (分):',
 
                 // Sound settings
                 'label-language': '言語:',
@@ -88,6 +90,8 @@ class I18nManager {
                 'label-lunch-time': 'Lunch Break (min):',
                 'label-warning-time': 'Warning (min before):',
                 'label-tick-interval': 'Overtime Interval (sec):',
+                'label-exercise-time': 'Exercise Time (min):',
+                'label-next-exercise-time': 'Next Exercise Time (min):',
 
                 // Sound settings
                 'label-language': 'Language:',
