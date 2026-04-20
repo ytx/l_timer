@@ -1397,6 +1397,11 @@ body {
   color: var(--exercise-color);
 }
 
+.exercise-end-time {
+  color: var(--exercise-color);
+  margin: 0.25rem 0;
+}
+
 .exercise-stop-btn {
   color: var(--danger-color) !important;
   border-color: var(--danger-color) !important;

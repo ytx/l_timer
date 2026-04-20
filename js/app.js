@@ -124,6 +124,7 @@ class TimerApp {
             nextExercisePanelEl: document.getElementById('next-exercise-panel'),
             nextExerciseCloseBtnEl: document.getElementById('next-exercise-close-btn'),
             nextExerciseOpenBtnEl: document.getElementById('next-exercise-open-btn'),
+            exerciseEndTimeEl: document.getElementById('exercise-end-time'),
 
             // Settings inputs
             lectureTimeSettings: document.getElementById('lecture-time-settings'),
@@ -686,6 +687,14 @@ class TimerApp {
         }
     }
     
+    updateExerciseEndTime() {
+        if (this.exerciseMode && this.exerciseEndTime && !this.exerciseIsOvertime) {
+            this.elements.exerciseEndTimeEl.textContent = this.exerciseEndTime.toLocaleTimeString('ja-JP');
+        } else {
+            this.elements.exerciseEndTimeEl.textContent = '--:--:--';
+        }
+    }
+
     adjustEndTime(minutes) {
         if (this.currentMode === 'idle') return;
         
@@ -894,6 +903,7 @@ class TimerApp {
         this.hideNextExercisePanel();
 
         this.updateExerciseDisplay();
+        this.updateExerciseEndTime();
 
         if (this.exerciseInterval) clearInterval(this.exerciseInterval);
         this.exerciseInterval = setInterval(() => this.exerciseTick(), 1000);
@@ -913,6 +923,7 @@ class TimerApp {
         this.elements.exerciseArea.style.display = 'none';
         this.elements.exerciseRunning.style.display = 'none';
         this.elements.exerciseSetup.style.display = 'none';
+        this.updateExerciseEndTime();
         this.updateButtonStates();
     }
 
@@ -946,6 +957,7 @@ class TimerApp {
         }
 
         this.updateExerciseDisplay();
+        this.updateExerciseEndTime();
     }
 
     updateExerciseDisplay() {
@@ -967,6 +979,7 @@ class TimerApp {
 
     adjustExerciseTime(delta) {
         const newEnd = new Date(this.exerciseEndTime.getTime() + delta * 60 * 1000);
+        newEnd.setSeconds(0, 0);
         if (!this.exerciseIsOvertime && newEnd <= new Date()) return;
         this.exerciseEndTime = newEnd;
         this.exerciseTimeRemaining = Math.floor((this.exerciseEndTime - Date.now()) / 1000);
@@ -976,6 +989,7 @@ class TimerApp {
             this.elements.exerciseTimer.classList.remove('overtime');
         }
         this.updateExerciseDisplay();
+        this.updateExerciseEndTime();
     }
 
     adjustNextExerciseTime(delta) {
