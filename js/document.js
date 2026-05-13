@@ -75,32 +75,29 @@ class DocumentManager {
         }
     }
 
-    saveDocument(title = null) {
-        if (!title) {
-            title = this.promptForTitle();
-            if (title === null) return; // User cancelled
-        }
+    saveDocument() {
+        const newTitle = this.promptForTitle();
+        if (newTitle === null) return; // User cancelled
 
         const content = {
             delta: this.quill.getContents(),
             html: this.quill.root.innerHTML
         };
-
         const now = new Date().toISOString();
 
-        if (this.currentDocumentId) {
-            // Update existing document
-            const doc = this.documents.find(d => d.id === this.currentDocumentId);
-            if (doc) {
-                doc.title = title;
-                doc.content = content;
-                doc.updatedAt = now;
-            }
+        const currentDoc = this.currentDocumentId
+            ? this.documents.find(d => d.id === this.currentDocumentId)
+            : null;
+
+        if (currentDoc && currentDoc.title === newTitle) {
+            // Title unchanged → update existing document
+            currentDoc.content = content;
+            currentDoc.updatedAt = now;
         } else {
-            // Create new document
+            // New document, or title changed → save as a separate document
             const newDoc = {
                 id: `doc_${Date.now()}`,
-                title: title,
+                title: newTitle,
                 content: content,
                 createdAt: now,
                 updatedAt: now
@@ -110,16 +107,17 @@ class DocumentManager {
         }
 
         this.saveToLocalStorage();
+        this.hasUnsavedChanges = false;
+        this.saveDraft();
         this.updateDropdown();
         this.updateUI();
-        this.hasUnsavedChanges = false;
 
         // Visual feedback
         this.showSaveConfirmation();
     }
 
     promptForTitle() {
-        const currentTitle = this.getCurrentTitle();
+        const currentTitle = this.getCurrentTitle() || this.extractTitleFromContent();
         let title = prompt('Document Title:', currentTitle);
 
         if (title === null) return null; // User cancelled
@@ -172,9 +170,10 @@ class DocumentManager {
 
         const doc = this.documents.find(d => d.id === documentId);
         if (doc) {
-            this.quill.setContents(doc.content.delta);
             this.currentDocumentId = documentId;
+            this.quill.setContents(doc.content.delta);
             this.hasUnsavedChanges = false;
+            this.saveDraft();
             this.updateUI();
         }
     }
@@ -188,9 +187,10 @@ class DocumentManager {
             }
         }
 
-        this.quill.setText('');
         this.currentDocumentId = null;
+        this.quill.setText('');
         this.hasUnsavedChanges = false;
+        this.saveDraft();
         this.updateUI();
     }
 
@@ -211,6 +211,7 @@ class DocumentManager {
         }
 
         this.saveToLocalStorage();
+        this.saveDraft();
         this.updateDropdown();
         this.updateUI();
     }
@@ -249,7 +250,22 @@ class DocumentManager {
     trackChanges() {
         this.quill.on('text-change', () => {
             this.hasUnsavedChanges = true;
+            this.saveDraft();
         });
+    }
+
+    saveDraft() {
+        if (!this.quill) return;
+        try {
+            const draft = {
+                currentDocumentId: this.currentDocumentId,
+                delta: this.quill.getContents(),
+                updatedAt: new Date().toISOString()
+            };
+            localStorage.setItem('editorDraft', JSON.stringify(draft));
+        } catch (error) {
+            console.error('Failed to save draft:', error);
+        }
     }
 
     showSaveConfirmation() {
@@ -277,13 +293,42 @@ class DocumentManager {
 
     // Called when editor is initialized
     restoreCurrentDocument() {
-        if (this.currentDocumentId) {
+        let restored = false;
+
+        try {
+            const raw = localStorage.getItem('editorDraft');
+            if (raw && this.quill) {
+                const draft = JSON.parse(raw);
+                if (draft && draft.delta) {
+                    const draftDocId = draft.currentDocumentId || null;
+                    const doc = draftDocId
+                        ? this.documents.find(d => d.id === draftDocId)
+                        : null;
+
+                    // Drop dangling reference to a deleted document
+                    this.currentDocumentId = doc ? draftDocId : null;
+                    this.quill.setContents(draft.delta);
+
+                    // Compare with the saved version to determine dirty state
+                    const savedDelta = doc ? JSON.stringify(doc.content.delta) : null;
+                    const draftDelta = JSON.stringify(draft.delta);
+                    this.hasUnsavedChanges = savedDelta !== draftDelta;
+
+                    restored = true;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to restore draft:', error);
+        }
+
+        if (!restored && this.currentDocumentId) {
             const doc = this.documents.find(d => d.id === this.currentDocumentId);
             if (doc && this.quill) {
                 this.quill.setContents(doc.content.delta);
-                this.hasUnsavedChanges = false; // Mark as saved since we just loaded it
+                this.hasUnsavedChanges = false;
             }
         }
+
         this.updateDropdown();
         this.updateUI();
     }
