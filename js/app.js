@@ -1088,8 +1088,9 @@ class TimerApp {
     }
 
     handleKeyboard(e) {
-        if (e.target.tagName === 'INPUT') return;
-        
+        const tag = e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+
         switch (e.key) {
             case 'l':
             case 'L':
@@ -1111,14 +1112,6 @@ class TimerApp {
             case 't':
             case 'T':
                 this.toggleTheme();
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                // Arrow keys no longer used for time adjustment
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                // Arrow keys no longer used for time adjustment
                 break;
         }
     }
