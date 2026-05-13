@@ -779,11 +779,6 @@ class TimerApp {
         this.elements.startBreak2Btn.style.display = (!isBreakRunning && !exerciseOpen) ? 'inline-flex' : 'none';
         this.elements.stopTimerBtn.style.display = ((isLectureRunning || isBreakRunning) && !exerciseOpen) ? 'inline-flex' : 'none';
 
-        // End-time adjust controls: hide while exercise is open
-        if (exerciseOpen) {
-            this.elements.timeAdjustControls.style.display = 'none';
-        }
-
         // Exercise button: visible during lecture (normal + overtime), not during setup/running
         const showExercise = isLectureRunning && !this.exerciseMode && !this.exerciseSetupVisible;
         this.elements.startExerciseBtn.style.display = showExercise ? 'inline-flex' : 'none';
